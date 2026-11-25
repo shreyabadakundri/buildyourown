@@ -1,5 +1,7 @@
 # BuildWithMe Studio
 
+**Repository:** [github.com/shreyabadakundri/buildyourown](https://github.com/shreyabadakundri/buildyourown)
+
 **BuildWithMe Studio** is an autonomous AI venture studio and engineering proof-of-work platform. Founders submit structured pitches; Cohere acts as a technical co-founder; results land in **MongoDB Atlas** with shareable architecture diagrams, SQL, and a 14-day sprint plan.
 
 ## Architecture
