@@ -4,6 +4,7 @@ import { useRef } from "react";
 import { ArrowRight, Cpu, FileInput, Rocket } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { PitchForm, type PitchFormHandle } from "@/components/PitchForm";
+import { AboutSection } from "@/components/AboutSection";
 
 const STEPS = [
   {
@@ -14,7 +15,7 @@ const STEPS = [
   {
     icon: Cpu,
     title: "Autonomous AI Architect",
-    desc: "Gemini scores feasibility, market pain, and fit; outputs architecture + SQL.",
+    desc: "Cohere scores feasibility, market pain, and fit; outputs architecture + SQL.",
   },
   {
     icon: Rocket,
@@ -56,6 +57,8 @@ export default function HomePage() {
             ))}
           </div>
         </section>
+
+        <AboutSection />
 
         <section>
           <PitchForm ref={pitchRef} />

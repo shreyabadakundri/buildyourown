@@ -19,6 +19,14 @@ export function Navbar({ onDemoMode }: NavbarProps) {
             <Hammer className="h-5 w-5" />
             BuildWithMe.dev
           </a>
+          <nav className="hidden items-center gap-4 sm:flex">
+            <a href="/about" className="font-mono text-xs text-zinc-400 hover:text-emerald-400">
+              About
+            </a>
+            <a href="/log" className="font-mono text-xs text-zinc-400 hover:text-emerald-400">
+              Log
+            </a>
+          </nav>
           <div className="flex flex-wrap items-center gap-2 sm:gap-3">
             <button
               type="button"

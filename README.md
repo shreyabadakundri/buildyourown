@@ -29,6 +29,11 @@ flowchart LR
 - **Mermaid** — client-side architecture diagrams
 - **lucide-react** — icons
 
+## About & log
+
+- **About** — [`/about`](http://localhost:3000/about) and homepage `#about` section
+- **Project log** — [`/log`](http://localhost:3000/log) and root [`CHANGELOG.md`](./CHANGELOG.md)
+
 ## Features
 
 - Landing page with pipeline narrative and embedded pitch form
@@ -64,6 +69,12 @@ flowchart LR
    ```
 
 6. Open [http://localhost:3000](http://localhost:3000).
+
+## Deploy to production
+
+Step-by-step **Vercel + MongoDB Atlas**: see **[DEPLOYMENT.md](./DEPLOYMENT.md)**.
+
+Quick path: import [buildyourown](https://github.com/shreyabadakundri/buildyourown) on [Vercel](https://vercel.com/new), set `MONGODB_URI`, `COHERE_API_KEY`, `MONGODB_DB_NAME=buildyourown`, `USE_LOCAL_DB=0`, and admin credentials, then deploy.
 
 ## Environment variables
 

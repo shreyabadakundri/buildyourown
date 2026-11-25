@@ -24,6 +24,7 @@ export function getMongoDbName(): string {
 
 export function useLocalPitchStore(): boolean {
   if (getMongoUri()) return false;
+  if (process.env.NODE_ENV === "production") return false;
   if (process.env.USE_LOCAL_DB === "0") return false;
   return process.env.USE_LOCAL_DB === "1" || process.env.NODE_ENV === "development";
 }
