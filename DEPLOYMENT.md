@@ -7,8 +7,8 @@ Recommended host: **[Vercel](https://vercel.com)** (built for Next.js 14).
 Repo: [github.com/shreyabadakundri/buildyourown](https://github.com/shreyabadakundri/buildyourown)
 
 ```bash
-git push origin develop
-# or merge develop → main and push main
+git push origin staging
+# or merge staging → main and push main
 ```
 
 ## 2. MongoDB Atlas (production)
