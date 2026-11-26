@@ -15,6 +15,8 @@ Your **live site does not use `.env.local`**. Add **all** of these in Vercel:
 
 Then: **Deployments** → **⋯** → **Redeploy**.
 
+If `/api/health` shows `MONGODB_URI: "invalid"`, **delete** the `MONGODB_URI` row, add it again, and paste **only** the Atlas value (no `MONGODB_URI=` prefix, no JSON, no `https://` link). Or delete `MONGODB_URI` and use `MONGODB_USER` + `MONGODB_PASSWORD` + `MONGODB_HOST` instead.
+
 **MongoDB Atlas** → **Network Access** → **Add IP** → `0.0.0.0/0`.
 
 **Verify:** https://buildyourown-seven.vercel.app/api/health  
