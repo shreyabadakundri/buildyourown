@@ -27,8 +27,14 @@ export default function AdminLoginPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username, password }),
     });
+    const data = (await res.json().catch(() => ({}))) as { error?: string };
     if (!res.ok) {
-      setError("Invalid username or password");
+      setError(
+        res.status === 503
+          ? data.error ??
+              "Server admin not configured. Set ADMIN_USERNAME and ADMIN_PASSWORD on Vercel, then Redeploy."
+          : data.error ?? "Invalid username or password"
+      );
       return;
     }
     router.replace("/admin/dashboard");

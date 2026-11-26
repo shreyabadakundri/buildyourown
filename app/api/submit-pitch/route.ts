@@ -95,8 +95,12 @@ export async function POST(request: Request) {
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Failed to save pitch";
-    const status = message.includes("not configured") ? 503 : 500;
-    return NextResponse.json({ error: message }, { status });
+    const isDb = message.includes("not configured");
+    const error = isDb
+      ? "Database not configured on server. On Vercel add MONGODB_URI, MONGODB_DB_NAME=buildyourown, USE_LOCAL_DB=0, then Redeploy. Allow 0.0.0.0/0 in Atlas Network Access."
+      : message;
+    const status = isDb ? 503 : 500;
+    return NextResponse.json({ error }, { status });
   }
   const db_write_ms = Date.now() - tDbStart;
 
