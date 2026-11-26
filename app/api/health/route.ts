@@ -1,5 +1,10 @@
 import { NextResponse } from "next/server";
-import { getCohereApiKey, getMongoDbName, getMongoUri } from "@/lib/env";
+import {
+  getCohereApiKey,
+  getMongoDbName,
+  getMongoUri,
+  isAdminConfigured,
+} from "@/lib/env";
 
 export const dynamic = "force-dynamic";
 
@@ -9,7 +14,13 @@ export async function GET() {
   const mongo = Boolean(getMongoUri());
   const dbName = getMongoDbName();
 
-  const ok = cohere && mongo;
+  const admin = isAdminConfigured();
+  const ok = cohere && mongo && admin;
+
+  const hints: string[] = [];
+  if (!cohere) hints.push("Add COHERE_API_KEY");
+  if (!mongo) hints.push("Add MONGODB_URI and MONGODB_DB_NAME=buildyourown, USE_LOCAL_DB=0");
+  if (!admin) hints.push("Add ADMIN_USERNAME and ADMIN_PASSWORD (e.g. admin / your password)");
 
   return NextResponse.json(
     {
@@ -18,12 +29,12 @@ export async function GET() {
         COHERE_API_KEY: cohere ? "set" : "missing",
         MONGODB_URI: mongo ? "set" : "missing",
         MONGODB_DB_NAME: dbName,
+        ADMIN_PASSWORD: admin ? "set" : "missing",
       },
       vercel: {
-        hint: !cohere
-          ? "Vercel → Project → Settings → Environment Variables → add COHERE_API_KEY → Redeploy"
-          : !mongo
-            ? "Add MONGODB_URI (and set USE_LOCAL_DB=0). Atlas Network Access: 0.0.0.0/0"
+        hint:
+          hints.length > 0
+            ? `${hints.join("; ")} → Vercel Environment Variables (Production) → Redeploy`
             : "All required keys present",
       },
     },

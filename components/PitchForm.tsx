@@ -132,9 +132,17 @@ export const PitchForm = forwardRef<PitchFormHandle, object>(function PitchForm(
         </div>
       )}
 
-      {errors.form && (
-        <p className="mb-4 text-sm text-red-400">{errors.form}</p>
-      )}
+        {errors.form && (
+          <div className="mb-4 rounded-lg border border-red-900/50 bg-red-950/30 p-3 text-sm text-red-300">
+            <p>{errors.form}</p>
+            {errors.form.includes("COHERE_API_KEY") && (
+              <p className="mt-2 text-xs text-red-400/90">
+                On Vercel: Settings → Environment Variables → add{" "}
+                <span className="font-mono text-red-300">COHERE_API_KEY</span> → Redeploy.
+              </p>
+            )}
+          </div>
+        )}
 
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label="Founder name" error={errors.founder_name}>

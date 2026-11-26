@@ -58,19 +58,25 @@ export function getAdminEmail(): string | undefined {
 }
 
 export function getAdminUsername(): string {
-  const v = process.env.ADMIN_USERNAME;
+  const v = process.env.ADMIN_USERNAME?.trim();
   if (v) return v;
   if (process.env.NODE_ENV === "development") return "admin";
-  warnMissing("ADMIN_USERNAME", "defaulting login to disabled until set");
   return "admin";
 }
 
 export function getAdminPassword(): string | undefined {
-  const v = process.env.ADMIN_PASSWORD;
+  const v = process.env.ADMIN_PASSWORD?.trim();
   if (v) return v;
   if (process.env.NODE_ENV === "development") return "admin";
-  warnMissing("ADMIN_PASSWORD", "admin dashboard locked");
+  warnMissing(
+    "ADMIN_PASSWORD",
+    "set in Vercel Environment Variables (Production), then Redeploy"
+  );
   return undefined;
+}
+
+export function isAdminConfigured(): boolean {
+  return Boolean(getAdminPassword());
 }
 
 export function getCalcomLink(): string {

@@ -6,7 +6,13 @@ export async function POST(request: Request) {
   const adminPassword = getAdminPassword();
   const adminUsername = getAdminUsername();
   if (!adminPassword) {
-    return NextResponse.json({ error: "Admin not configured" }, { status: 503 });
+    return NextResponse.json(
+      {
+        error:
+          "Admin not configured on server. Add ADMIN_USERNAME and ADMIN_PASSWORD in Vercel → Settings → Environment Variables → Redeploy.",
+      },
+      { status: 503 }
+    );
   }
 
   let body: { username?: string; password?: string };
