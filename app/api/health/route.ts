@@ -3,6 +3,7 @@ import {
   getCohereApiKey,
   getMongoDbName,
   getMongoUri,
+  getMongoUriIssue,
   getMongoUriStatus,
   isAdminConfigured,
 } from "@/lib/env";
@@ -15,6 +16,7 @@ export const dynamic = "force-dynamic";
 export async function GET() {
   const cohere = Boolean(getCohereApiKey());
   const mongoStatus = getMongoUriStatus();
+  const mongoIssue = mongoStatus === "invalid" ? getMongoUriIssue() : null;
   const mongo = Boolean(getMongoUri());
   const dbName = getMongoDbName();
 
@@ -35,7 +37,7 @@ export async function GET() {
   if (!mongo) {
     hints.push(
       mongoStatus === "invalid"
-        ? mongoUriValidationHint()
+        ? mongoUriValidationHint(mongoIssue)
         : "Add MONGODB_URI and MONGODB_DB_NAME=buildyourown, USE_LOCAL_DB=0"
     );
   }
@@ -52,6 +54,7 @@ export async function GET() {
       checks: {
         COHERE_API_KEY: cohere ? "set" : "missing",
         MONGODB_URI: mongo ? "set" : mongoStatus,
+        ...(mongoIssue ? { MONGODB_URI_ISSUE: mongoIssue } : {}),
         MONGODB_PING: mongoReachable,
         MONGODB_DB_NAME: dbName,
         ADMIN_PASSWORD: admin ? "set" : "missing",

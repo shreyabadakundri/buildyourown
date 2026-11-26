@@ -1,4 +1,9 @@
-import { mongoUriValidationHint, resolveMongoUri } from "@/lib/mongodb-uri";
+import {
+  diagnoseMongoUriIssue,
+  mongoUriValidationHint,
+  resolveMongoUri,
+  type MongoUriIssue,
+} from "@/lib/mongodb-uri";
 
 function warnMissing(key: string, hint: string): undefined {
   if (typeof window === "undefined") {
@@ -26,7 +31,17 @@ export function getMongoUri(): string | undefined {
 export function getMongoUriStatus(): "set" | "missing" | "invalid" {
   if (resolveMongoUri()) return "set";
   if (process.env.MONGODB_URI?.trim()) return "invalid";
+  const split =
+    process.env.MONGODB_USER?.trim() &&
+    process.env.MONGODB_PASSWORD?.trim() &&
+    process.env.MONGODB_HOST?.trim();
+  if (split) return "invalid";
   return "missing";
+}
+
+export function getMongoUriIssue(): MongoUriIssue | null {
+  if (resolveMongoUri()) return null;
+  return diagnoseMongoUriIssue(process.env.MONGODB_URI) ?? "unknown";
 }
 
 export function getMongoDbName(): string {
