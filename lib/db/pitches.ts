@@ -65,6 +65,17 @@ export function toAdminRow(doc: PitchDocument) {
   };
 }
 
+async function requireDb() {
+  const db = await getDb();
+  if (db) return db;
+  if (process.env.MONGODB_URI?.trim()) {
+    throw new Error(
+      "Database connection failed. Check MONGODB_URI and Atlas Network Access."
+    );
+  }
+  throw new Error("Database not configured");
+}
+
 export async function insertPitch(
   pitch: PitchFormInput,
   evaluation: AIEvaluation,
@@ -75,8 +86,7 @@ export async function insertPitch(
     return local.localInsertPitch(pitch, evaluation, telemetry);
   }
 
-  const db = await getDb();
-  if (!db) throw new Error("Database not configured");
+  const db = await requireDb();
   await ensureIndexes();
 
   const now = new Date();
@@ -110,8 +120,7 @@ export async function updatePitchTelemetry(
     return;
   }
 
-  const db = await getDb();
-  if (!db) throw new Error("Database not configured");
+  const db = await requireDb();
   if (!ObjectId.isValid(id)) return;
 
   await db.collection(PITCHES_COLLECTION).updateOne(
@@ -143,8 +152,7 @@ export async function listPitches(): Promise<PitchDocument[]> {
     return local.localListPitches();
   }
 
-  const db = await getDb();
-  if (!db) throw new Error("Database not configured");
+  const db = await requireDb();
   await ensureIndexes();
 
   return db
@@ -163,8 +171,7 @@ export async function updatePitchStatus(
     return;
   }
 
-  const db = await getDb();
-  if (!db) throw new Error("Database not configured");
+  const db = await requireDb();
   if (!ObjectId.isValid(id)) throw new Error("Invalid pitch id");
 
   const result = await db.collection(PITCHES_COLLECTION).updateOne(
