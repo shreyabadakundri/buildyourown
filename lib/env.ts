@@ -36,8 +36,14 @@ export function getGeminiApiKey(): string | undefined {
 }
 
 export function getCohereApiKey(): string | undefined {
-  const v = process.env.COHERE_API_KEY;
-  if (!v) warnMissing("COHERE_API_KEY", "AI evaluation disabled");
+  const v = process.env.COHERE_API_KEY?.trim();
+  if (!v) {
+    warnMissing(
+      "COHERE_API_KEY",
+      "add to .env.local (local) or Vercel → Settings → Environment Variables (deployed), then restart/redeploy"
+    );
+    return undefined;
+  }
   return v;
 }
 

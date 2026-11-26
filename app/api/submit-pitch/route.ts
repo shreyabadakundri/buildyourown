@@ -68,7 +68,11 @@ export async function POST(request: Request) {
     cost_usd = est.costUsd;
   } catch (err) {
     const message = err instanceof Error ? err.message : "AI evaluation failed";
-    return NextResponse.json({ error: message }, { status: 503 });
+    const hint =
+      message.includes("COHERE_API_KEY") || message.includes("not configured")
+        ? "Set COHERE_API_KEY in .env.local and restart dev server, or in Vercel env vars and redeploy."
+        : message;
+    return NextResponse.json({ error: hint }, { status: 503 });
   }
   const ai_inference_ms = Date.now() - tAiStart;
 

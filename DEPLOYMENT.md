@@ -43,8 +43,23 @@ git push origin develop
 ## 4. After deploy
 
 - Site: `https://your-project.vercel.app`
+- **Config check:** `https://your-project.vercel.app/api/health`  
+  Must show `COHERE_API_KEY: "set"` and `MONGODB_URI: "set"`. If either is `missing`, fix env vars and **Redeploy** (required after every env change).
 - Admin: `https://your-project.vercel.app/admin/login`
 - Test: **1-Click Demo Mode** → submit pitch → check Atlas `pitches` collection.
+
+### Vercel env vars (copy checklist)
+
+```
+COHERE_API_KEY=cohere_...
+MONGODB_URI=mongodb+srv://...
+MONGODB_DB_NAME=buildyourown
+USE_LOCAL_DB=0
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=your-strong-password
+```
+
+**Important:** `.env.local` on your PC is **not** uploaded to Vercel. You must enter keys in the Vercel dashboard for **Production** (and Preview if needed).
 
 ## 5. Custom domain (optional)
 
