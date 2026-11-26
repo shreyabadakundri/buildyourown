@@ -1,5 +1,6 @@
 import {
   diagnoseMongoUriIssue,
+  mongoUriShape,
   mongoUriValidationHint,
   resolveMongoUri,
   type MongoUriIssue,
@@ -42,6 +43,11 @@ export function getMongoUriStatus(): "set" | "missing" | "invalid" {
 export function getMongoUriIssue(): MongoUriIssue | null {
   if (resolveMongoUri()) return null;
   return diagnoseMongoUriIssue(process.env.MONGODB_URI) ?? "unknown";
+}
+
+export function getMongoUriShape(): string | null {
+  if (resolveMongoUri()) return null;
+  return mongoUriShape(process.env.MONGODB_URI);
 }
 
 export function getMongoDbName(): string {

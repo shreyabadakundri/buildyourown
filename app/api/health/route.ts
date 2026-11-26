@@ -4,6 +4,7 @@ import {
   getMongoDbName,
   getMongoUri,
   getMongoUriIssue,
+  getMongoUriShape,
   getMongoUriStatus,
   isAdminConfigured,
 } from "@/lib/env";
@@ -17,6 +18,7 @@ export async function GET() {
   const cohere = Boolean(getCohereApiKey());
   const mongoStatus = getMongoUriStatus();
   const mongoIssue = mongoStatus === "invalid" ? getMongoUriIssue() : null;
+  const mongoShape = mongoStatus === "invalid" ? getMongoUriShape() : null;
   const mongo = Boolean(getMongoUri());
   const dbName = getMongoDbName();
 
@@ -55,6 +57,7 @@ export async function GET() {
         COHERE_API_KEY: cohere ? "set" : "missing",
         MONGODB_URI: mongo ? "set" : mongoStatus,
         ...(mongoIssue ? { MONGODB_URI_ISSUE: mongoIssue } : {}),
+        ...(mongoShape ? { MONGODB_URI_SHAPE: mongoShape } : {}),
         MONGODB_PING: mongoReachable,
         MONGODB_DB_NAME: dbName,
         ADMIN_PASSWORD: admin ? "set" : "missing",

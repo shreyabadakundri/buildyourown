@@ -22,10 +22,42 @@ function stripQuotes(value: string): string {
   return t;
 }
 
+function stripWrapping(value: string): string {
+  let t = value.trim();
+  while (t.length >= 2 && /^[\s([{`]+/.test(t) && /[\s)\]}`]+$/.test(t)) {
+    t = t.replace(/^[\s([{`]+/, "").replace(/[\s)\]}`]+$/, "").trim();
+  }
+  return t;
+}
+
+function tryPercentDecode(value: string): string {
+  if (!value.includes("%")) return value;
+  try {
+    const decoded = decodeURIComponent(value);
+    if (/mongodb/i.test(decoded)) return decoded.trim();
+  } catch {
+    /* keep original */
+  }
+  return value;
+}
+
+function repairMongoScheme(uri: string): string {
+  let u = uri;
+  u = u.replace(/^mongodb\+srv:\/(?!\/)/i, "mongodb+srv://");
+  u = u.replace(/^mongo\+srv:\/\//i, "mongodb+srv://");
+  u = u.replace(/^mongdb\+srv:\/\//i, "mongodb+srv://");
+  u = u.replace(/^srv:\/\//i, "mongodb+srv://");
+  return u;
+}
+
 function preprocessMongoRaw(raw: string): string {
-  let uri = stripQuotes(raw).replace(/\r?\n/g, "").trim();
-  uri = uri.replace(/^\uFEFF/, "");
+  let uri = stripWrapping(stripQuotes(raw)).replace(/\r?\n/g, "").trim();
+  uri = uri.replace(/^[\uFEFF\u200B\u200C\u200D]+/, "");
   uri = uri.replace(/^MONGODB_URI\s*=\s*/i, "");
+  uri = uri.replace(/^=+/, "");
+  uri = tryPercentDecode(uri);
+  uri = repairMongoScheme(uri);
+
   const lower = uri.toLowerCase();
   if (lower.startsWith("mongodb+srv://")) {
     return `mongodb+srv://${uri.slice("mongodb+srv://".length)}`;
@@ -33,6 +65,11 @@ function preprocessMongoRaw(raw: string): string {
   if (lower.startsWith("mongodb://")) {
     return `mongodb://${uri.slice("mongodb://".length)}`;
   }
+
+  if (!uri.includes("://") && /@.+\.mongodb\.net/i.test(uri)) {
+    return `mongodb+srv://${uri.replace(/^\/+/, "")}`;
+  }
+
   return uri;
 }
 
@@ -45,7 +82,24 @@ export type MongoUriIssue =
   | "placeholder"
   | "missing_scheme"
   | "looks_like_db_name"
+  | "wrong_protocol"
+  | "scheme_typo"
+  | "percent_encoded"
   | "unknown";
+
+/** Non-secret shape hint for debugging Vercel paste issues. */
+export function mongoUriShape(raw: string | undefined): string | null {
+  if (!raw?.trim()) return null;
+  const uri = preprocessMongoRaw(raw);
+  if (!uri) return "empty";
+  if (isValidMongoScheme(uri)) return "valid_scheme";
+  if (raw.includes("%") && !/mongodb\+srv/i.test(raw)) return "needs_decode_or_repaste";
+  if (/^mongo/i.test(uri) && !isValidMongoScheme(uri)) return "scheme_typo";
+  if (uri.includes("://") && !/mongodb/i.test(uri.split("://")[0] ?? "")) return "wrong_protocol";
+  if (!uri.includes("://") && uri.includes("mongodb.net")) return "host_only";
+  if (!uri.includes("://") && /@.+\.mongodb\.net/i.test(uri)) return "credentials_no_scheme";
+  return "unrecognized";
+}
 
 /** Safe hint for /api/health — never exposes the URI. */
 export function diagnoseMongoUriIssue(raw: string | undefined): MongoUriIssue | null {
@@ -54,6 +108,11 @@ export function diagnoseMongoUriIssue(raw: string | undefined): MongoUriIssue | 
   if (!uri) return "empty";
   if (uri.includes("cluster0.xxxxx") || uri.includes("YOUR_")) return "placeholder";
   if (isValidMongoScheme(uri)) return null;
+  if (raw.includes("%") && !isValidMongoScheme(uri) && !/mongodb\+srv/i.test(raw)) {
+    return "percent_encoded";
+  }
+  if (/^mongo/i.test(uri) && !isValidMongoScheme(uri)) return "scheme_typo";
+  if (uri.includes("://") && !/^mongodb(\+srv)?:\/\//i.test(uri)) return "wrong_protocol";
   if (!uri.includes("://") && uri.includes("mongodb.net")) return "missing_scheme";
   if (!uri.includes("://") && !uri.includes(".") && /^[a-z0-9_-]+$/i.test(uri)) {
     return "looks_like_db_name";
@@ -125,8 +184,14 @@ const ISSUE_HINTS: Record<MongoUriIssue, string> = {
     "Paste the full driver string starting with mongodb+srv://, not the host name alone.",
   looks_like_db_name:
     "MONGODB_URI looks like a database name (buildyourown). Use the full mongodb+srv:// user:pass@host/… string instead.",
+  wrong_protocol:
+    "MONGODB_URI is not a Mongo URL (e.g. https or postgres). Use Atlas → Connect → Drivers → copy the Node.js string.",
+  scheme_typo:
+    "MONGODB_URI is missing letters in the scheme — must be exactly mongodb+srv:// at the start.",
+  percent_encoded:
+    "MONGODB_URI looks URL-encoded or corrupted. Delete the variable, paste the raw Atlas string (starts with mongodb+srv://), then Redeploy.",
   unknown:
-    "MONGODB_URI must start with mongodb+srv:// (Atlas → Connect → Drivers). Remove quotes and redeploy.",
+    "Delete MONGODB_URI on Vercel, paste a fresh Atlas driver string (mongodb+srv://user:pass@cluster….mongodb.net/…), or remove it and set MONGODB_USER, MONGODB_PASSWORD, MONGODB_HOST instead.",
 };
 
 export function mongoUriValidationHint(issue?: MongoUriIssue | null): string {

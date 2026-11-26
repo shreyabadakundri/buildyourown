@@ -243,7 +243,7 @@ export const PitchForm = forwardRef<PitchFormHandle, object>(function PitchForm(
         </Field>
       </div>
 
-      <label className="mt-4 flex cursor-pointer items-start gap-3 text-sm text-zinc-400">
+      <label className="interactive-label mt-4 flex items-start gap-3 text-sm text-zinc-400">
         <input
           type="checkbox"
           checked={form.legal_agreed === true}
