@@ -95,10 +95,16 @@ export async function POST(request: Request) {
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Failed to save pitch";
-    const isDb = message.includes("not configured");
-    const error = isDb
-      ? "Database not configured on server. On Vercel add MONGODB_URI, MONGODB_DB_NAME=buildyourown, USE_LOCAL_DB=0, then Redeploy. Allow 0.0.0.0/0 in Atlas Network Access."
-      : message;
+    const isDb =
+      message.includes("not configured") || message.includes("connection failed");
+    const error = message.includes("Invalid scheme") ||
+      message.includes('expected connection string to start with "mongodb://"')
+      ? 'Invalid MONGODB_URI. Use the full Atlas string starting with mongodb+srv:// (Connect → Drivers). No quotes or placeholders.'
+      : isDb
+        ? message.includes("connection failed")
+          ? message
+          : "Database not configured on server. On Vercel add MONGODB_URI, MONGODB_DB_NAME=buildyourown, USE_LOCAL_DB=0, then Redeploy. Allow 0.0.0.0/0 in Atlas Network Access."
+        : message;
     const status = isDb ? 503 : 500;
     return NextResponse.json({ error }, { status });
   }

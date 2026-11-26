@@ -7,7 +7,7 @@ Your **live site does not use `.env.local`**. Add **all** of these in Vercel:
 | Name | Example / notes |
 |------|-----------------|
 | `COHERE_API_KEY` | `cohere_...` from [Cohere dashboard](https://dashboard.cohere.com) |
-| `MONGODB_URI` | Full string from Atlas → Connect → Drivers |
+| `MONGODB_URI` | **Full** string from Atlas → Connect → Drivers, e.g. `mongodb+srv://user:pass@cluster….mongodb.net/?retryWrites=true&w=majority` (no quotes, not host-only) |
 | `MONGODB_DB_NAME` | `buildyourown` |
 | `USE_LOCAL_DB` | `0` |
 | `ADMIN_USERNAME` | `admin` |

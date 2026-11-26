@@ -141,6 +141,18 @@ export const PitchForm = forwardRef<PitchFormHandle, object>(function PitchForm(
                 <span className="font-mono text-red-300">COHERE_API_KEY</span> → Redeploy.
               </p>
             )}
+            {(errors.form.includes("MONGODB_URI") ||
+              errors.form.includes("mongodb+srv") ||
+              errors.form.includes("Invalid scheme") ||
+              errors.form.includes("Database not configured")) && (
+              <p className="mt-2 text-xs text-red-400/90">
+                Use the full Atlas connection string (starts with{" "}
+                <span className="font-mono text-red-300">mongodb+srv://</span>). Check{" "}
+                <span className="font-mono text-red-300">/api/health</span> —{" "}
+                <span className="font-mono text-red-300">MONGODB_PING</span> should be{" "}
+                <span className="font-mono text-red-300">ok</span>.
+              </p>
+            )}
           </div>
         )}
 

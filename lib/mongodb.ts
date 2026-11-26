@@ -12,11 +12,21 @@ export async function getDb(): Promise<Db | null> {
 
   if (!global._mongoClientPromise) {
     const client = new MongoClient(uri);
-    global._mongoClientPromise = client.connect();
+    global._mongoClientPromise = client.connect().catch((err) => {
+      global._mongoClientPromise = undefined;
+      throw err;
+    });
   }
 
   const client = await global._mongoClientPromise;
   return client.db(getMongoDbName());
+}
+
+export async function pingMongo(): Promise<boolean> {
+  const db = await getDb();
+  if (!db) return false;
+  await db.command({ ping: 1 });
+  return true;
 }
 
 export const PITCHES_COLLECTION = "pitches";
